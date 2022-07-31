@@ -46,7 +46,8 @@ def patch_dbt_environment() -> None:
         def with_ff_extension(*args, **kwargs):
             env = func(*args, **kwargs)
             target = Target(
-                identifier="dbt-feature-flags", name=os.getenv("DBT_TARGET", "default")
+                identifier="dbt-" + os.getenv("DBT_TARGET", "default"), 
+                name=os.getenv("DBT_TARGET", "default").title(),
             )
             bool_variation = functools.partial(ff_client.bool_variation, target=target, default=False)
             string_variation = functools.partial(ff_client.string_variation, target=target, default="")
