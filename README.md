@@ -9,6 +9,17 @@ More often data is being called a product. Furthermore software engineering best
 
 This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt developers to control SQL deployed at runtime. This allows faster iterations, faster & safer merges, and much safer experimentation. For example putting out a new v2 KPI column in a data mart behind a feature flag allows you to toggle between v1 and v2 in production without fear of regression. The same is applicable with rolling out a new `ref` to replace an old one. You could even toggle an entire experimental data mart on or off. You could put BigQuery ML models behind these flags, etc. If you "need" a data model in production but aren't confident in it, you can roll it out with the safety net of you or even a non-engineer being able to toggle it off. 
 
+## Usage
+
+This integration uses Harness Feature Flags. Sign up (https://harness.io/products/feature-flags)[here]. It's free to use and provides the interface for controlling your feature flags. 
+
+Required env vars:
+`DBT_FF_API_KEY` - your feature flags key
+
+Optional:
+`DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
+`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s
+
 ## Examples
 
 A contrived example:
