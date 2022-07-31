@@ -72,6 +72,17 @@ FROM
       body_mass_g IS NOT NULL))
 ```
 
+A dbt yaml example
+
+```yaml
+models:
+  project:
+    new_expermental_marts:
+      +schema: experimental
+      +enabled: "{{ feature_flag('use_new_marts') }}"
+
+```
+
 ## Closing Remarks
 
 Given that most of what is relevant to software is either directly or periphally relevant to data product development, we will continue to pull the description from Atlassian:
