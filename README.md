@@ -13,8 +13,8 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 
 This integration uses Harness Feature Flags. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
 
-Evaluation flow
-![flow](https://files.helpdocs.io/i5nl071jo5/articles/7ikyqtmjce/1632916374189/ff-flowchart.jpg)
+Interface
+![flow](https://files.helpdocs.io/kw8ldg1itf/articles/1j7pdkqh7j/1657792368788/screenshot-2022-07-14-at-10-52-03.png)
 
 ### Set Up
 
@@ -23,6 +23,8 @@ Required env vars:
 `DBT_FF_API_KEY` - your feature flags key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set it up
 
 Optional:
+
+`DBT_TARGET` - this lets you serve different flag evaluations to different targets. This variable should be set by the user/server where dbt is running and mostly intuitively correlates to dbt targets but could technically be anything you want to differentiate and serve differently. When unset, `default` is the default target value and is also reasonable if differentiating is unimportant
 
 `DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
 
