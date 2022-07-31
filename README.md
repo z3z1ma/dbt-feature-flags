@@ -13,9 +13,14 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 
 This integration uses Harness Feature Flags. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
 
+Evaluation flow
+![flow](https://files.helpdocs.io/i5nl071jo5/articles/7ikyqtmjce/1632916374189/ff-flowchart.jpg)
+
+### Set Up
+
 Required env vars:
 
-`DBT_FF_API_KEY` - your feature flags key
+`DBT_FF_API_KEY` - your feature flags key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set it up
 
 Optional:
 
