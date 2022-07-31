@@ -14,10 +14,13 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 This integration uses Harness Feature Flags. Sign up (https://harness.io/products/feature-flags)[here]. It's free to use and provides the interface for controlling your feature flags. 
 
 Required env vars:
+
 `DBT_FF_API_KEY` - your feature flags key
 
 Optional:
+
 `DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
+
 `DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s
 
 ## Examples
