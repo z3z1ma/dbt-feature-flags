@@ -11,7 +11,7 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 
 ## Usage
 
-This integration uses Harness Feature Flags. Sign up (https://harness.io/products/feature-flags)[here]. It's free to use and provides the interface for controlling your feature flags. 
+This integration uses Harness Feature Flags. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
 
 Required env vars:
 
