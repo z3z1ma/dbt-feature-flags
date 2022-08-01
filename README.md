@@ -48,13 +48,13 @@ The below options are applicable to all clients unless specifically noted otherw
 
 These are available *anywhere* dbt jinja is evaluated. That includes profiles.yml, dbt_project.yml, models, macros, etc.
 
-`feature_flag(flag: str) -> bool`: Looks for boolean variation flag. By default returns False. Most flags are boolean. Will throw RuntimeError if different return type is detected.
+`feature_flag(flag: str) -> bool`: Looks for boolean variation flag. By default returns False. Most flags are boolean. Will throw ValueError if different return type is detected.
 
-`feature_flag_str(flag: str) -> str`: Looks for string variation flag. By default returns "". Will throw RuntimeError if different return type is detected.
+`feature_flag_str(flag: str) -> str`: Looks for string variation flag. By default returns "". Will throw ValueError if different return type is detected.
 
-`feature_flag_num(flag: str) -> float | int`: Looks for number variation flag. By default returns 0. Will throw RuntimeError if different return type is detected.
+`feature_flag_num(flag: str) -> float | int`: Looks for number variation flag. By default returns 0. Will throw ValueError if different return type is detected.
 
-`feature_flag_json(flag: str) -> dict | list`: Looks for json variation flag. By default returns an empty dict {}. Will throw RuntimeError if different return type is detected.
+`feature_flag_json(flag: str) -> dict | list`: Looks for json variation flag. By default returns an empty dict {}. Will throw ValueError if different return type is detected.
 
 ## Examples
 
