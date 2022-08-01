@@ -1,9 +1,12 @@
+from typing import Union
+
 from dbt_feature_flags.base import BaseFeatureFlagsClient
 
 
 class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
     def __init__(self):
         # Lazy imports
+        import atexit
         import logging
         import os
         import time
@@ -31,14 +34,19 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
         self.client = CfClient(FF_KEY)
         time.sleep(float(os.getenv("DBT_FF_DELAY", 1.0)))
 
+        def exit_handler(c: CfClient):
+            c.close()
+
+        atexit.register(exit_handler, self.client)
+
     def bool_variation(self, flag: str) -> bool:
         return self.client.bool_variation(flag, target=self.target, default=False)
 
     def string_variation(self, flag: str) -> str:
         return self.client.string_variation(flag, target=self.target, default="")
 
-    def number_variation(self, flag: str) -> float | int:
+    def number_variation(self, flag: str) -> Union[float, int]:
         return self.client.number_variation(flag, target=self.target, default=0)
 
-    def json_variation(self, flag: str) -> dict | list:
+    def json_variation(self, flag: str) -> Union[dict, list]:
         return self.client.json_variation(flag, target=self.target, default={})

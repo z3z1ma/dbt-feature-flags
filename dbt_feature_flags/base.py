@@ -1,4 +1,5 @@
 import abc
+from typing import Union
 
 
 class BaseFeatureFlagsClient(abc.ABC):
@@ -19,13 +20,13 @@ class BaseFeatureFlagsClient(abc.ABC):
         )
 
     @abc.abstractmethod
-    def number_variation(self, flag: str) -> float | int:
+    def number_variation(self, flag: str) -> Union[float, int]:
         raise NotImplementedError(
             "Number feature flags are not implemented for this driver"
         )
 
     @abc.abstractmethod
-    def json_variation(self, flag: str) -> dict | list:
+    def json_variation(self, flag: str) -> Union[dict, list]:
         raise NotImplementedError(
             "JSON feature flags are not implemented for this driver"
         )

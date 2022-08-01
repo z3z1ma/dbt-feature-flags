@@ -1,6 +1,6 @@
 # dbt-feature-flags
 
-## Basics
+## Why Feature Flags?
 
 > At a foundational level, feature flags enable code to be committed and deployed to production in a dormant state and then activated later. This gives teams more control over the user experience of the end product. Development teams can choose when and to which users new code is delivered. - Atlassian (Ian Buchannan)
 
@@ -11,16 +11,30 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 
 ## Usage
 
-This integration uses Harness Feature Flags. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
+This integration uses Harness Feature Flags by default. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
 
 Interface
 ![flow](https://files.helpdocs.io/kw8ldg1itf/articles/1j7pdkqh7j/1657792368788/screenshot-2022-07-14-at-10-52-03.png)
 
+Alternatively we also support [LaunchDarkly](https://launchdarkly.com/) and the package is architected in such a way that adding a new client is fairly straightforward.
+
 ### Set Up
+
+Supported clients
+
+| clients      | supported |
+|--------------|-----------|
+| harness      | ✅         |
+| launchdarkly | ✅         |
+| unleashed    | ⛔️         |
+
+The below options are applicable to all clients unless specifically noted otherwise.
 
 Required env vars:
 
-`DBT_FF_API_KEY` - your feature flags key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set it up
+`FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to harness if unset out of convenience. So to override: FF_PROVIDER=launchdarkly
+
+`DBT_FF_API_KEY` - your feature flags key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set up a harness key. Because of the server-side use case with no client SDKs in play, the Harness free tier can sustain **any size** dbt deployment.
 
 Optional:
 
@@ -28,13 +42,28 @@ Optional:
 
 `DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
 
-`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s
+`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s (HARNESS CLIENT ONLY)
+
+### Jinja Functions
+
+These are available *anywhere* dbt jinja is evaluated. That includes profiles.yml, dbt_project.yml, models, macros, etc.
+
+`feature_flag(flag: str)`: Looks for boolean variation flag. By default returns False. Most flags are boolean. Will throw RuntimeError if different return type is detected.
+
+`feature_flag_str(flag: str)`: Looks for string variation flag. By default returns "". Will throw RuntimeError if different return type is detected.
+
+`feature_flag_num(flag: str)`: Looks for number variation flag. By default returns 0. Will throw RuntimeError if different return type is detected.
+
+`feature_flag_json(flag: str)`: Looks for json variation flag. By default returns an empty dict {}. Will throw RuntimeError if different return type is detected.
 
 ## Examples
 
 A contrived example:
 
 ```sql
+-- Use a feature_flag call as a bool value
+{{ config(enabled=feature_flag("custom_date_model")) }}
+
 select
     *
     {%- if feature_flag("new_relative_date_columns") %},
@@ -55,42 +84,44 @@ from
     {{ ref('dim_dates__base') }}
 ```
 
-BQ ML Model example (this could be ran in a run-operation, feature flags are valid anywhere dbt evaluates jinja)
+BQ ML model example (this could be ran in a `run-operation`, feature flags are valid anywhere dbt evaluates jinja)
 
 ```sql
-CREATE OR REPLACE MODEL `bqml_tutorial.penguins_model`
-OPTIONS
-  (model_type='linear_reg',
-  input_label_cols=['body_mass_g']) AS
-SELECT
+create or replace model `bqml_tutorial.penguins_model`
+options (
+  model_type='linear_reg',
+  input_label_cols=['body_mass_g'] ) as
+select
   *
-FROM
-  `bigquery-public-data.ml_datasets.penguins`
-WHERE
+from
+  {{ source('ml_datasets', 'penguins') }}
+where
   {% if feature_flag("penguins_model_min_weight_filter") %}
   body_mass_g > 100
   {% else %}
-  body_mass_g IS NOT NULL
+  body_mass_g is not null
   {% endif %}
 ```
 
+Another BQ ML example
+
 ```sql
-SELECT
+select
   *
-FROM
-  ML.EVALUATE(
+from
+  ml.evaluate(
   {% if feature_flag("use_v2_ml_model") %}
-  MODEL `bqml_tutorial.penguins_model_v2`,
+  model `bqml_tutorial.penguins_model_v2`,
   {% else %}
-  MODEL `bqml_tutorial.penguins_model`,
-  {% endif %}
-    (
-    SELECT
+  model `bqml_tutorial.penguins_model`,
+  {% endif %} (
+    select
       *
-    FROM
-      `bigquery-public-data.ml_datasets.penguins`
-    WHERE
-      body_mass_g IS NOT NULL))
+    from
+      {{ source('ml_datasets', 'penguins') }}
+    where
+      body_mass_g is not null
+))
 ```
 
 A dbt yaml example

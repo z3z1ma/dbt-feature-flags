@@ -3,7 +3,7 @@ or on how to implement a new client
 """
 import os
 
-from dbt_feature_flags import base, harness
+from dbt_feature_flags import base, harness, launchdarkly
 
 
 def _get_client() -> base.BaseFeatureFlagsClient:
@@ -13,6 +13,8 @@ def _get_client() -> base.BaseFeatureFlagsClient:
     ff_client = None
     if ff_provider == "harness":
         ff_client = harness.HarnessFeatureFlagsClient()
+    elif ff_provider == "launchdarkly":
+        ff_client = launchdarkly.LaunchDarklyFeatureFlagsClient()
     if not isinstance(ff_client, base.BaseFeatureFlagsClient):
         raise RuntimeError(
             "Invalid feature flag client specified by (FF_PROVIDER=%s)",
