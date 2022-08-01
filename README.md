@@ -30,31 +30,31 @@ Supported clients
 
 The below options are applicable to all clients unless specifically noted otherwise.
 
-Required env vars:
+**Required env vars:**
 
-`FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to harness if unset out of convenience. So to override: FF_PROVIDER=launchdarkly
+`FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to harness if unset out of convenience. So to override that default: FF_PROVIDER=launchdarkly
 
-`DBT_FF_API_KEY` - your feature flags key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set up a harness key. Because of the server-side use case with no client SDKs in play, the Harness free tier can sustain **any size** dbt deployment.
+`DBT_FF_API_KEY` - your feature flags SDK key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set up a harness key. Because of the server-side use case with no client SDKs in play, the Harness free tier can sustain **any size** dbt deployment. Alternatively sign up for LaunchDarkly [here](https://launchdarkly.com/start-trial/).
 
-Optional:
+**Optional:**
 
 `DBT_TARGET` - this lets you serve different flag evaluations to different targets. This variable should be set by the user/server where dbt is running and mostly intuitively correlates to dbt targets but could technically be anything you want to differentiate and serve differently. When unset, `default` is the default target value and is also reasonable if differentiating is unimportant
 
 `DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
 
-`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s (HARNESS CLIENT ONLY)
+`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s (Harness client only)
 
 ### Jinja Functions
 
 These are available *anywhere* dbt jinja is evaluated. That includes profiles.yml, dbt_project.yml, models, macros, etc.
 
-`feature_flag(flag: str)`: Looks for boolean variation flag. By default returns False. Most flags are boolean. Will throw RuntimeError if different return type is detected.
+`feature_flag(flag: str) -> bool`: Looks for boolean variation flag. By default returns False. Most flags are boolean. Will throw RuntimeError if different return type is detected.
 
-`feature_flag_str(flag: str)`: Looks for string variation flag. By default returns "". Will throw RuntimeError if different return type is detected.
+`feature_flag_str(flag: str) -> str`: Looks for string variation flag. By default returns "". Will throw RuntimeError if different return type is detected.
 
-`feature_flag_num(flag: str)`: Looks for number variation flag. By default returns 0. Will throw RuntimeError if different return type is detected.
+`feature_flag_num(flag: str) -> float | int`: Looks for number variation flag. By default returns 0. Will throw RuntimeError if different return type is detected.
 
-`feature_flag_json(flag: str)`: Looks for json variation flag. By default returns an empty dict {}. Will throw RuntimeError if different return type is detected.
+`feature_flag_json(flag: str) -> dict | list`: Looks for json variation flag. By default returns an empty dict {}. Will throw RuntimeError if different return type is detected.
 
 ## Examples
 
