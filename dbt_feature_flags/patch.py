@@ -1,62 +1,51 @@
+"""See README for usage details 
+or on how to implement a new client
 """
-Set up feature flags:
-    https://harness.io/products/feature-flags
+import os
 
-Configurable env vars:
-    DBT_FF_API_KEY (required)
-        the API key for the Harness Feature Flags instance
-    DBT_FF_DISABLE 
-        disables patch if detected in env regardless of set value
-    DBT_FF_DELAY
-        length of time to delay after client instantiation for initial load
-"""
+from dbt_feature_flags import base, harness
+
+
+def _get_client() -> base.BaseFeatureFlagsClient:
+    """Return the user specified client, valid impementations MUST
+    inherit from BaseFeatureFlagsClient"""
+    ff_provider = os.getenv("FF_PROVIDER", "harness")
+    ff_client = None
+    if ff_provider == "harness":
+        ff_client = harness.HarnessFeatureFlagsClient()
+    if not isinstance(ff_client, base.BaseFeatureFlagsClient):
+        raise RuntimeError(
+            "Invalid feature flag client specified by (FF_PROVIDER=%s)",
+            ff_provider,
+        )
+    return ff_client
+
 
 def patch_dbt_environment() -> None:
-    import os
-
     if os.getenv("DBT_FF_DISABLE"):
         return
-    
-    FF_KEY = os.getenv("DBT_FF_API_KEY")
-    if FF_KEY is None:
-        raise RuntimeError("dbt-feature-flags injected in environment, this patch requires the env var DBT_FF_API_KEY")
 
     import functools
-    import logging
-    import time
 
     from dbt.clients import jinja
-    from featureflags.client import CfClient, Target, log
-
-    # Override default logging to preserve stderr
-    log.setLevel(logging.CRITICAL)
 
     # Getting environment function from dbt
     jinja._get_environment = jinja.get_environment
 
     # FF client
-    ff_client = CfClient(FF_KEY)
-    time.sleep(float(os.getenv("DBT_FF_DELAY", 1.0)))
+    ff_client = _get_client()
 
     def add_ff_extension(func):
         if getattr(func, "status", None) == "patched":
             return func
-        
+
         @functools.wraps(func)
         def with_ff_extension(*args, **kwargs):
             env = func(*args, **kwargs)
-            target = Target(
-                identifier="dbt-" + os.getenv("DBT_TARGET", "default"), 
-                name=os.getenv("DBT_TARGET", "default").title(),
-            )
-            bool_variation = functools.partial(ff_client.bool_variation, target=target, default=False)
-            string_variation = functools.partial(ff_client.string_variation, target=target, default="")
-            number_variation = functools.partial(ff_client.number_variation, target=target, default=0)
-            json_variation = functools.partial(ff_client.json_variation, target=target, default={})
-            env.globals["feature_flag"] = bool_variation
-            env.globals["feature_flag_str"] = string_variation
-            env.globals["feature_flag_num"] = number_variation
-            env.globals["feature_flag_json"] = json_variation
+            env.globals["feature_flag"] = ff_client.bool_variation
+            env.globals["feature_flag_str"] = ff_client.string_variation
+            env.globals["feature_flag_num"] = ff_client.number_variation
+            env.globals["feature_flag_json"] = ff_client.json_variation
             return env
 
         with_ff_extension.status = "patched"
