@@ -28,8 +28,6 @@ Supported clients
 | launchdarkly | ✅         |
 | unleashed    | ⛔️         |
 
-The below options are applicable to all clients unless specifically noted otherwise.
-
 **Required env vars:**
 
 `FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to harness if unset out of convenience. So to override that default: FF_PROVIDER=launchdarkly
@@ -41,8 +39,6 @@ The below options are applicable to all clients unless specifically noted otherw
 `DBT_TARGET` - this lets you serve different flag evaluations to different targets. This variable should be set by the user/server where dbt is running and mostly intuitively correlates to dbt targets but could technically be anything you want to differentiate and serve differently. When unset, `default` is the default target value and is also reasonable if differentiating is unimportant
 
 `DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
-
-`DBT_FF_DELAY` - delay before evaluating feature flags, you shouldn't need this but feature flags have a cache that is seeded asynchronously on initialization so a small delay is required to evaluate properly. Our default delay is 1s (Harness client only)
 
 ### Jinja Functions
 
