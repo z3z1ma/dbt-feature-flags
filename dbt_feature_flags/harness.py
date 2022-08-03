@@ -43,7 +43,7 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
                 for flag in flags:
                     self._repository.set_flag(flag)
                 segments = retrieve_segments(
-                    client=self.__client, environment_uuid=self.__environment_id
+                    client=self._client, environment_uuid=self._environment_id
                 )
                 for segment in segments:
                     self._repository.set_segment(segment)
