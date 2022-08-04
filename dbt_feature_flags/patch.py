@@ -3,12 +3,14 @@ or on how to implement a new client
 """
 import os
 
-from dbt_feature_flags import base, harness, launchdarkly
+from dbt_feature_flags import base, mock, harness, launchdarkly
 
 
 def _get_client() -> base.BaseFeatureFlagsClient:
     """Return the user specified client, valid impementations MUST
     inherit from BaseFeatureFlagsClient"""
+    if os.getenv("DBT_FF_DISABLE"):
+        return mock.MockFeatureFlagClient()
     ff_provider = os.getenv("FF_PROVIDER", "harness")
     ff_client = None
     if ff_provider == "harness":
@@ -24,9 +26,6 @@ def _get_client() -> base.BaseFeatureFlagsClient:
 
 
 def patch_dbt_environment() -> None:
-    if os.getenv("DBT_FF_DISABLE"):
-        return
-
     import functools
 
     from dbt.clients import jinja
