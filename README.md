@@ -58,11 +58,11 @@ A contrived example:
 
 ```sql
 -- Use a feature_flag call as a bool value
-{{ config(enabled=feature_flag("custom_date_model")) }}
+{{ config(enabled=feature_flag("custom_date_model", default=false)) }}
 
 select
-    *
-    {%- if feature_flag("new_relative_date_columns") %},
+    * -- Example below uses FF + var macro for the default so you can toggle it while offline
+    {%- if feature_flag("new_relative_date_columns", default=var("new_relative_date_columns", false)) %},
     case
         when current_date between fiscal_quarter_start_date and fiscal_quarter_end_date
             then 'Current'
