@@ -63,15 +63,22 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
 
         # Init client
         self.client = CfSyncClient(FF_KEY)
+        super().__init__()
 
-    def bool_variation(self, flag: str) -> bool:
-        return self.client.bool_variation(flag, target=self.target, default=False)
+    def bool_variation(self, flag: str, default: bool = False) -> bool:
+        return self.client.bool_variation(flag, target=self.target, default=default)
 
-    def string_variation(self, flag: str) -> str:
-        return self.client.string_variation(flag, target=self.target, default="")
+    def string_variation(self, flag: str, default: str = "") -> str:
+        return self.client.string_variation(flag, target=self.target, default=default)
 
-    def number_variation(self, flag: str) -> Union[float, int]:
-        return self.client.number_variation(flag, target=self.target, default=0)
+    def number_variation(
+        self, flag: str, default: Union[float, int] = 0
+    ) -> Union[float, int]:
+        return self.client.number_variation(flag, target=self.target, default=default)
 
-    def json_variation(self, flag: str) -> Union[dict, list]:
-        return self.client.json_variation(flag, target=self.target, default={})
+    def json_variation(
+        self, flag: str, default: Optional[Union[dict, list]] = None
+    ) -> Union[dict, list]:
+        return self.client.json_variation(
+            flag, target=self.target, default={} if default is None else default
+        )

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 from dbt_feature_flags.base import BaseFeatureFlagsClient
 
@@ -38,35 +38,22 @@ class LaunchDarklyFeatureFlagsClient(BaseFeatureFlagsClient):
             c.close()
 
         atexit.register(exit_handler, self.client)
+        super().__init__()
 
-    def bool_variation(self, flag: str) -> bool:
-        v = self.client.variation(flag, user=self.target, default=False)
-        if not isinstance(v, bool):
-            raise ValueError(
-                "Non boolean return type found for feature_flag call, use appropriate feature_flag_* call"
-            )
-        return v
+    def bool_variation(self, flag: str, default: bool = False) -> bool:
+        return self.client.variation(flag, user=self.target, default=default)
 
-    def string_variation(self, flag: str) -> str:
-        v = self.client.variation(flag, user=self.target, default="")
-        if not isinstance(v, str):
-            raise ValueError(
-                "Non string return type found for feature_flag_str call, use appropriate feature_flag_* call"
-            )
-        return v
+    def string_variation(self, flag: str, default: str = "") -> str:
+        return self.client.variation(flag, user=self.target, default=default)
 
-    def number_variation(self, flag: str) -> Union[float, int]:
-        v = self.client.variation(flag, user=self.target, default=0)
-        if not isinstance(v, (float, int)):
-            raise ValueError(
-                "Non number return type found for feature_flag_num call, use appropriate feature_flag_* call"
-            )
-        return v
+    def number_variation(
+        self, flag: str, default: Union[float, int] = 0
+    ) -> Union[float, int]:
+        return self.client.variation(flag, user=self.target, default=default)
 
-    def json_variation(self, flag: str) -> Union[dict, list]:
-        v = self.client.variation(flag, user=self.target, default={})
-        if not isinstance(v, (dict, list)):
-            raise ValueError(
-                "Non JSON return type found for feature_flag_json call, use appropriate feature_flag_* call"
-            )
-        return v
+    def json_variation(
+        self, flag: str, default: Optional[Union[dict, list]] = None
+    ) -> Union[dict, list]:
+        return self.client.variation(
+            flag, user=self.target, default={} if default is None else default
+        )

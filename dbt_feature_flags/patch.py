@@ -3,17 +3,17 @@ or on how to implement a new client
 """
 import os
 
-from dbt_feature_flags import base, mock, harness, launchdarkly
+from dbt_feature_flags import base, harness, launchdarkly, mock
 
 
 def _get_client() -> base.BaseFeatureFlagsClient:
     """Return the user specified client, valid impementations MUST
     inherit from BaseFeatureFlagsClient"""
-    if os.getenv("DBT_FF_DISABLE"):
-        return mock.MockFeatureFlagClient()
-    ff_provider = os.getenv("FF_PROVIDER", "harness")
+    ff_provider = os.getenv("FF_PROVIDER")
     ff_client = None
-    if ff_provider == "harness":
+    if os.getenv("DBT_FF_DISABLE") or not ff_provider:
+        ff_client = mock.MockFeatureFlagClient()
+    elif ff_provider == "harness":
         ff_client = harness.HarnessFeatureFlagsClient()
     elif ff_provider == "launchdarkly":
         ff_client = launchdarkly.LaunchDarklyFeatureFlagsClient()
@@ -57,16 +57,13 @@ def patch_dbt_environment() -> None:
 
     jinja.get_environment = env_with_ff
 
-    if os.getenv("DBT_FF_TEST"):
-        test_ff_eval()
-
 
 def test_ff_eval() -> None:
     from dbt.clients.jinja import get_environment
 
     template = get_environment().from_string(
         """
-    {%- if feature_flag("Test_Flag") %}
+    {%- if feature_flag("Test_Flag", default=False) %}
     select 100 as _ff_true
     {%- else %}
     select -100 as _ff_false
@@ -74,3 +71,8 @@ def test_ff_eval() -> None:
     """
     )
     print(template.render())
+
+
+if __name__ == "__main__":
+    patch_dbt_environment()
+    test_ff_eval()
