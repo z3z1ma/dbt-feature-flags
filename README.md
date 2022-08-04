@@ -11,7 +11,7 @@ This ELT pattern heavily encourages experimentation. dbt-feature-flags allow dbt
 
 ## Usage
 
-This integration uses Harness Feature Flags by default. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
+This integration uses a mock client by default. The mock client serves up (optionally user-specified) defaults. These defaults can be defined centrally via `vars` which provides a 2-layer approach for more advanced uses, or alternatively they can be specified inline, statically. Execution with the mock client is only enabled so projects using dbt-feature-flags are _always_ executable regardless of being connected to a provider. Harness Feature Flags is the recommended provider. Sign up [here](https://harness.io/products/feature-flags). It's free to use and provides the interface for controlling your feature flags. 
 
 Interface
 ![flow](https://files.helpdocs.io/kw8ldg1itf/articles/1j7pdkqh7j/1657792368788/screenshot-2022-07-14-at-10-52-03.png)
