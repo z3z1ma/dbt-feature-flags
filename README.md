@@ -30,7 +30,7 @@ Supported clients
 
 **Required env vars:**
 
-`FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to harness if unset out of convenience. So to override that default: FF_PROVIDER=launchdarkly
+`FF_PROVIDER` - Must be one of above supported providers exactly as shown. Defaults to a mock client if unset. The mock client serves up defaults so that your project can run without any dependence on the FF provider. To override the default mock client and use a provider: FF_PROVIDER=harness
 
 `DBT_FF_API_KEY` - your feature flags SDK key. Instructions [here](https://docs.harness.io/article/1j7pdkqh7j-create-a-feature-flag#step_3_create_an_sdk_key) to set up a harness key. Because of the server-side use case with no client SDKs in play, the Harness free tier can sustain **any size** dbt deployment. Alternatively sign up for LaunchDarkly [here](https://launchdarkly.com/start-trial/).
 
