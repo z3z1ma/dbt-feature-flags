@@ -1,5 +1,11 @@
 # dbt-feature-flags
 
+![PyPI](https://img.shields.io/pypi/v/dbt-feature-flags)
+![Downloads](https://pepy.tech/badge/dbt-feature-flags)
+![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-green.svg)
+![black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![example workflow](https://github.com/z3z1ma/dbt-feature-flags/actions/workflows/run-tests.yml/badge.svg)
+
 ## Why Feature Flags?
 
 > At a foundational level, feature flags enable code to be committed and deployed to production in a dormant state and then activated later. This gives teams more control over the user experience of the end product. Development teams can choose when and to which users new code is delivered. - Atlassian (Ian Buchannan)
