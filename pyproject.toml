@@ -11,7 +11,7 @@ homepage = "https://github.com/z3z1ma/dbt-feature-flags"
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
 harness-featureflags = "^1.1.3"
-dbt-core = ">=1.1.0"
+dbt-core = ">=1.0.0"
 launchdarkly-server-sdk = "^7.5.1"
 
 [tool.poetry.dev-dependencies]
