@@ -2,8 +2,15 @@
 or on how to implement a new client
 """
 import os
+from enum import Enum
 
 from dbt_feature_flags import base, harness, launchdarkly, mock
+
+
+class SupportedProviders(str, Enum):
+    Harness = "harness"
+    LaunchDarkly = "launchdarkly"
+    NoopClient = "mock"
 
 
 def _get_client() -> base.BaseFeatureFlagsClient:
@@ -13,9 +20,9 @@ def _get_client() -> base.BaseFeatureFlagsClient:
     ff_client = None
     if os.getenv("DBT_FF_DISABLE") or not ff_provider:
         ff_client = mock.MockFeatureFlagClient()
-    elif ff_provider == "harness":
+    elif ff_provider == SupportedProviders.Harness:
         ff_client = harness.HarnessFeatureFlagsClient()
-    elif ff_provider == "launchdarkly":
+    elif ff_provider == SupportedProviders.LaunchDarkly:
         ff_client = launchdarkly.LaunchDarklyFeatureFlagsClient()
     if not isinstance(ff_client, base.BaseFeatureFlagsClient):
         raise RuntimeError(
@@ -58,21 +65,5 @@ def patch_dbt_environment() -> None:
     jinja.get_environment = env_with_ff
 
 
-def test_ff_eval() -> None:
-    from dbt.clients.jinja import get_environment
-
-    template = get_environment().from_string(
-        """
-    {%- if feature_flag("Test_Flag", default=False) %}
-    select 100 as _ff_true
-    {%- else %}
-    select -100 as _ff_false
-    {% endif -%}
-    """
-    )
-    print(template.render())
-
-
 if __name__ == "__main__":
     patch_dbt_environment()
-    test_ff_eval()
