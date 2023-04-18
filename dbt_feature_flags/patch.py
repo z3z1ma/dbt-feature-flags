@@ -79,10 +79,10 @@ def get_rendered(
         native: bool = False,
     ):
         if client is _MOCK_CLIENT:
-            ctx["feature_flag"] = ctx["var"]
-            ctx["feature_flag_str"] = ctx["var"]
-            ctx["feature_flag_num"] = ctx["var"]
-            ctx["feature_flag_json"] = ctx["var"]
+            ctx["feature_flag"] = ctx.get("var", lambda _, default=False: default)
+            ctx["feature_flag_str"] = ctx.get("var", lambda _, default="": default)
+            ctx["feature_flag_num"] = ctx.get("var", lambda _, default=0: default)
+            ctx["feature_flag_json"] = ctx.get("var", lambda _, default={}: default)
         else:
             ctx["feature_flag"] = client.bool_variation
             ctx["feature_flag_str"] = client.string_variation
