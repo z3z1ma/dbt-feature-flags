@@ -24,8 +24,10 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
         import os
 
         from featureflags.api.client import Client
-        from featureflags.api.default.get_all_segments import sync as retrieve_segments
-        from featureflags.api.default.get_feature_config import sync as retrieve_flags
+        from featureflags.api.default.get_all_segments import \
+            sync as retrieve_segments
+        from featureflags.api.default.get_feature_config import \
+            sync as retrieve_flags
         from featureflags.client import CfClient, Target
         from featureflags.client import log as logger
         from featureflags.config import Config

@@ -11,11 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import os
+import typing as t
 from enum import Enum
+from functools import wraps
 
-from dbt_feature_flags import base, harness, launchdarkly, mock
+from dbt_feature_flags import base, harness, launchdarkly
+
+_MOCK_CLIENT = object()
 
 
 class SupportedProviders(str, Enum):
@@ -24,56 +29,77 @@ class SupportedProviders(str, Enum):
     NoopClient = "mock"
 
 
-def _get_client() -> base.BaseFeatureFlagsClient:
-    """Return the user specified client, valid impementations MUST
-    inherit from BaseFeatureFlagsClient"""
-    ff_provider = os.getenv("FF_PROVIDER")
-    ff_client = None
-    if os.getenv("DBT_FF_DISABLE") or not ff_provider:
-        ff_client = mock.MockFeatureFlagClient()
-    elif ff_provider == SupportedProviders.Harness:
-        ff_client = harness.HarnessFeatureFlagsClient()
-    elif ff_provider == SupportedProviders.LaunchDarkly:
-        ff_client = launchdarkly.LaunchDarklyFeatureFlagsClient()
-    if not isinstance(ff_client, base.BaseFeatureFlagsClient):
+def _is_truthy(value: str) -> bool:
+    """Return True if the value is truthy, False otherwise."""
+    return value.lower() in ("1", "true", "yes")
+
+
+def _get_client() -> base.BaseFeatureFlagsClient | _MOCK_CLIENT:
+    """Return the user specified client.
+
+    Valid implementations MUST inherit from BaseFeatureFlagsClient.
+    """
+    provider, client = os.getenv("DBT_FF_PROVIDER"), None
+
+    if _is_truthy(os.getenv("DBT_FF_DISABLE", "0")):
+        client = _MOCK_CLIENT
+    elif not provider:
+        client = _MOCK_CLIENT
+    elif provider == SupportedProviders.Harness:
+        client = harness.HarnessFeatureFlagsClient()
+    elif provider == SupportedProviders.LaunchDarkly:
+        client = launchdarkly.LaunchDarklyFeatureFlagsClient()
+
+    if client is not _MOCK_CLIENT and not isinstance(
+        client, base.BaseFeatureFlagsClient
+    ):
         raise RuntimeError(
-            "Invalid feature flag client specified by (FF_PROVIDER=%s)",
-            ff_provider,
+            "Invalid dbt feature flag client specified by (DBT_FF_PROVIDER=%s)",
+            provider,
         )
-    return ff_client
+
+    return client
+
+
+def get_rendered(
+    fn: t.Callable,
+    client: base.BaseFeatureFlagsClient,
+):
+    """Patch dbt's jinja environment to include feature flag functions."""
+
+    if getattr(fn, "status", None) == "patched":
+        return fn
+
+    @wraps(fn)
+    def _wrapped(
+        string: str,
+        ctx: t.Dict[str, t.Any],
+        node=None,
+        capture_macros: bool = False,
+        native: bool = False,
+    ):
+        if client is _MOCK_CLIENT:
+            ctx["feature_flag"] = ctx["var"]
+            ctx["feature_flag_str"] = ctx["var"]
+            ctx["feature_flag_num"] = ctx["var"]
+            ctx["feature_flag_json"] = ctx["var"]
+        else:
+            ctx["feature_flag"] = client.bool_variation
+            ctx["feature_flag_str"] = client.string_variation
+            ctx["feature_flag_num"] = client.number_variation
+            ctx["feature_flag_json"] = client.json_variation
+        return fn(string, ctx, node, capture_macros, native)
+
+    _wrapped.status = "patched"
+    return _wrapped
 
 
 def patch_dbt_environment() -> None:
-    import functools
-
+    """Patch dbt's jinja environment to include feature flag functions."""
     from dbt.clients import jinja
 
-    # Getting environment function from dbt
-    jinja._get_environment = jinja.get_environment
-
-    # FF client
-    ff_client = _get_client()
-
-    def add_ff_extension(func):
-        if getattr(func, "status", None) == "patched":
-            return func
-
-        @functools.wraps(func)
-        def with_ff_extension(*args, **kwargs):
-            env = func(*args, **kwargs)
-            env.globals["feature_flag"] = ff_client.bool_variation
-            env.globals["feature_flag_str"] = ff_client.string_variation
-            env.globals["feature_flag_num"] = ff_client.number_variation
-            env.globals["feature_flag_json"] = ff_client.json_variation
-            return env
-
-        with_ff_extension.status = "patched"
-
-        return with_ff_extension
-
-    env_with_ff = add_ff_extension(jinja._get_environment)
-
-    jinja.get_environment = env_with_ff
+    jinja._get_rendered = jinja.get_rendered
+    jinja.get_rendered = get_rendered(jinja._get_rendered, _get_client())
 
 
 if __name__ == "__main__":

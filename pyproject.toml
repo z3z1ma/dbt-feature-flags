@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbt-feature-flags"
-version = "0.4.1"
+version = "0.5.0"
 description = "Use feature flags in dbt models"
 authors = ["z3z1ma <butler.alex2010@gmail.com>"]
 include = ["zzz_dbt_feature_flags.pth"]
