@@ -83,6 +83,12 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
         self.client: t.Any = CfSyncClient(FF_KEY)
         super().__init__()
 
+    def shutdown(self) -> None:
+        try:
+            self.client.destroy()
+        except Exception:
+            self.logger.exception("Failed to shut down Harness feature flag client")
+
     def bool_variation(self, flag: str, default: bool = False) -> bool:
         return self.client.bool_variation(flag, target=self.target, default=default)
 

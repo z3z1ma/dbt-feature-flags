@@ -269,6 +269,9 @@ def test_preflight_keeps_partial_parse_when_flags_match(
 
 
 class FakeHarnessSDK:
+    def __init__(self) -> None:
+        self.destroyed = False
+
     def bool_variation(self, flag: str, target: object, default: bool) -> bool:
         return not default
 
@@ -284,6 +287,9 @@ class FakeHarnessSDK:
         self, flag: str, target: object, default: JSONValue
     ) -> JSONValue:
         return {"flag": flag, "default": default}
+
+    def destroy(self) -> None:
+        self.destroyed = True
 
 
 def test_harness_provider_delegates_to_sdk_client() -> None:
@@ -301,6 +307,46 @@ def test_harness_provider_delegates_to_sdk_client() -> None:
         "flag": "payload",
         "default": {"x": 1},
     }
+    client.shutdown()
+    assert client.client.destroyed
+
+
+def test_patch_dbt_environment_registers_provider_shutdown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dbt.clients import jinja
+    from dbt_feature_flags import patch
+
+    original_get_rendered = getattr(jinja, "_get_rendered", jinja.get_rendered)
+    client = FakeClient({})
+    registered: list[t.Callable[[], None]] = []
+    monkeypatch.setattr(jinja, "get_rendered", original_get_rendered)
+    monkeypatch.setattr(jinja, "_get_rendered", original_get_rendered, raising=False)
+    monkeypatch.setattr(patch, "_get_client", lambda: client)
+    monkeypatch.setattr(patch.atexit, "register", registered.append)
+
+    patch.patch_dbt_environment()
+    registered[0]()
+
+    assert client.shutdown_called
+
+
+def test_patch_dbt_environment_skips_mock_shutdown_registration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dbt.clients import jinja
+    from dbt_feature_flags import patch
+
+    original_get_rendered = getattr(jinja, "_get_rendered", jinja.get_rendered)
+    registered: list[t.Callable[[], None]] = []
+    monkeypatch.setattr(jinja, "get_rendered", original_get_rendered)
+    monkeypatch.setattr(jinja, "_get_rendered", original_get_rendered, raising=False)
+    monkeypatch.setattr(patch, "_get_client", lambda: patch._MOCK_CLIENT)
+    monkeypatch.setattr(patch.atexit, "register", registered.append)
+
+    patch.patch_dbt_environment()
+
+    assert registered == []
 
 
 class FakeLaunchDarklySDK:

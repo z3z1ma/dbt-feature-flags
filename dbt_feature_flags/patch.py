@@ -13,6 +13,7 @@
 # limitations under the License.
 from __future__ import annotations
 
+import atexit
 import os
 import typing as t
 from enum import Enum
@@ -106,13 +107,20 @@ def get_rendered(
     return _wrapped
 
 
+def _register_shutdown(client: base.BaseFeatureFlagsClient | _MockClient) -> None:
+    if isinstance(client, base.BaseFeatureFlagsClient):
+        atexit.register(client.shutdown)
+
+
 def patch_dbt_environment() -> None:
     """Patch dbt's jinja environment to include feature flag functions."""
     from dbt.clients import jinja
 
+    client = _get_client()
     original_get_rendered = getattr(jinja, "_get_rendered", jinja.get_rendered)
     setattr(jinja, "_get_rendered", original_get_rendered)
-    setattr(jinja, "get_rendered", get_rendered(original_get_rendered, _get_client()))
+    setattr(jinja, "get_rendered", get_rendered(original_get_rendered, client))
+    _register_shutdown(client)
 
 
 if __name__ == "__main__":

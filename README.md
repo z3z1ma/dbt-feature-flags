@@ -47,7 +47,30 @@ Supported clients
 
 `DBT_TARGET` - this lets you serve different flag evaluations to different targets. This variable should be set by the user/server where dbt is running and mostly intuitively correlates to dbt targets but could technically be anything you want to differentiate and serve differently. When unset, `default` is the default target value and is also reasonable if differentiating is unimportant
 
-`DBT_FF_DISABLE` - disable the patch, note that feature_flag expressions will cause your dbt models not to compile until removed or replaced. If you have the package as a dependency and aren't using it, you can save a second of initialization
+`DBT_FF_DISABLE` - force mock-client evaluation even when `DBT_FF_PROVIDER` is set. Feature flag expressions continue to compile and resolve from dbt vars or inline defaults.
+
+### Command Line Overrides
+
+The default mock client resolves feature flags through dbt vars. That means a local command can enable or disable a flag by passing `--vars` with the same name as the flag:
+
+```bash
+dbt compile --vars '{use_new_marts: true}'
+dbt run --vars '{use_new_marts: false, new_relative_date_columns: true}'
+```
+
+You can force this mock behavior even when provider environment variables are present:
+
+```bash
+DBT_FF_DISABLE=1 dbt compile --vars '{use_new_marts: true}'
+```
+
+For a live provider, select the provider with environment variables and change the flag state in Harness, FME, or LaunchDarkly:
+
+```bash
+DBT_FF_PROVIDER=harness DBT_FF_API_KEY=... DBT_TARGET=prod dbt compile
+```
+
+`--vars` can still provide defaults used by your dbt project, but it does not change remote provider state.
 
 ### Jinja Functions
 
