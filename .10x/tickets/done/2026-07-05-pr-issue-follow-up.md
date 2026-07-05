@@ -1,4 +1,4 @@
-Status: active
+Status: done
 Created: 2026-07-05
 Updated: 2026-07-05
 
@@ -52,3 +52,7 @@ None.
 - 2026-07-05: Inspected issue #3. The README does not clearly explain command-line flag control through dbt `--vars`, provider env vars, and `DBT_FF_DISABLE`.
 - 2026-07-05: Implemented Harness shutdown, provider `atexit` registration, lifecycle tests, and README command-line docs.
 - 2026-07-05: Ran local verification and recorded results in `.10x/evidence/2026-07-05-pr-issue-follow-up.md`.
+- 2026-07-05: Committed and pushed implementation commit `1e741a3` to `origin/main`.
+- 2026-07-05: Commented on and closed PR #6 and PR #7 without merging.
+- 2026-07-05: Replied to issue #3 and closed it as completed.
+- 2026-07-05: Verified the repository has no open PRs and no open issues after closure.

@@ -1,7 +1,7 @@
 Status: recorded
 Created: 2026-07-05
 Updated: 2026-07-05
-Relates-To: .10x/tickets/2026-07-05-pr-issue-follow-up.md
+Relates-To: .10x/tickets/done/2026-07-05-pr-issue-follow-up.md
 
 # PR and Issue Follow-Up Evidence
 
@@ -80,6 +80,17 @@ Open PRs #6 and #7 and issue #3 were inspected. PR #6 contained valid provider s
   - Exit code: 0.
   - Result: 0 results.
 
+## Remote Closure Actions
+
+- Pushed implementation commit `1e741a3` to `origin/main`.
+- Commented on PR #6 explaining that valid shutdown behavior was reimplemented directly on `main`.
+- Closed PR #6 without merging it.
+- Commented on PR #7 explaining that its old CI matrix fix is superseded by the current UV/dbt support floor.
+- Closed PR #7 without merging it.
+- Replied to issue #3 with the command-line usage answer and README update reference.
+- Closed issue #3 as completed.
+- Verified GitHub search returned no open PRs and no open issues for `z3z1ma/dbt-feature-flags`.
+
 ## What This Supports
 
 - PR #6's remaining valid lifecycle behavior is implemented directly on `main` with tests.
@@ -90,4 +101,4 @@ Open PRs #6 and #7 and issue #3 were inspected. PR #6 contained valid provider s
 ## Limits
 
 - Live provider shutdown was not tested against real Harness credentials. The local test verifies the adapter calls the SDK `destroy()` boundary.
-- GitHub PR/issue closure actions are recorded separately after the implementation is pushed.
+- Live GitHub closure state was observed through the GitHub connector after mutation.

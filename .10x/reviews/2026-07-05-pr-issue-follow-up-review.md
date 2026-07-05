@@ -1,7 +1,7 @@
 Status: recorded
 Created: 2026-07-05
 Updated: 2026-07-05
-Target: .10x/tickets/2026-07-05-pr-issue-follow-up.md
+Target: .10x/tickets/done/2026-07-05-pr-issue-follow-up.md
 Verdict: pass
 
 # PR and Issue Follow-Up Review
