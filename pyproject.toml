@@ -1,35 +1,32 @@
-[tool.poetry]
+[project]
 name = "dbt-feature-flags"
 version = "0.5.2"
 description = "Use feature flags in dbt models"
-authors = ["z3z1ma <butler.alex2010@gmail.com>"]
-include = ["zzz_dbt_feature_flags.pth"]
+authors = [{ name = "z3z1ma", email = "butler.alex2010@gmail.com" }]
 readme = "README.md"
-repository = "https://github.com/z3z1ma/dbt-feature-flags"
-homepage = "https://github.com/z3z1ma/dbt-feature-flags"
+requires-python = ">=3.8"
+dependencies = ["dbt-core>=1.0.0,<2"]
 
-[tool.poetry.dependencies]
-python = ">=3.8,<4"
-dbt-core = ">=1.0.0,<2"
-# SDK dependencies are optional — install only the provider you need:
-#   pip install dbt-feature-flags[fme]
-#   pip install dbt-feature-flags[harness]
-#   pip install dbt-feature-flags[launchdarkly]
-harness-featureflags    = { version = ">1,<2",    optional = true }
-splitio-client          = { version = ">=10,<11", optional = true }
-launchdarkly-server-sdk = { version = ">=7,<9",   optional = true }
+[project.urls]
+Homepage = "https://github.com/z3z1ma/dbt-feature-flags"
+Repository = "https://github.com/z3z1ma/dbt-feature-flags"
 
-[tool.poetry.extras]
-harness      = ["harness-featureflags"]
-fme          = ["splitio-client"]
-launchdarkly = ["launchdarkly-server-sdk"]
+[project.optional-dependencies]
+# SDK dependencies are optional; install only the provider you need.
+harness = ["harness-featureflags>1,<2"]
+fme = ["splitio-client>=10,<11"]
+launchdarkly = ["launchdarkly-server-sdk>=7,<9"]
 
-[tool.poetry.scripts]
+[project.scripts]
 dbt-ff-preflight = "dbt_feature_flags.preflight:cli"
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
+[dependency-groups]
+dev = ["pytest>=5.2"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dbt_feature_flags"]
+force-include = { "zzz_dbt_feature_flags.pth" = "zzz_dbt_feature_flags.pth" }
