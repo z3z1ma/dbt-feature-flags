@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union
+from importlib import import_module
+import typing as t
 
-from dbt_feature_flags.base import BaseFeatureFlagsClient
+from dbt_feature_flags.base import JSONValue, BaseFeatureFlagsClient
 
 
 class LaunchDarklyFeatureFlagsClient(BaseFeatureFlagsClient):
-    def __init__(self):
+    def __init__(self) -> None:
         # Lazy imports
         import atexit
         import os
 
-        import ldclient
-        from ldclient.config import Config
+        ldclient = import_module("ldclient")
+        Config = import_module("ldclient.config").Config
 
         # Set up target
         self.target = {
@@ -48,26 +49,22 @@ class LaunchDarklyFeatureFlagsClient(BaseFeatureFlagsClient):
                 FF_KEY,
             )
 
-        def exit_handler(c: ldclient.LDClient):
+        def exit_handler(c: t.Any) -> None:
             c.close()
 
         atexit.register(exit_handler, self.client)
         super().__init__()
 
     def bool_variation(self, flag: str, default: bool = False) -> bool:
-        return self.client.variation(flag, user=self.target, default=default)
+        return self.client.variation(flag, self.target, default)
 
     def string_variation(self, flag: str, default: str = "") -> str:
-        return self.client.variation(flag, user=self.target, default=default)
+        return self.client.variation(flag, self.target, default)
 
-    def number_variation(
-        self, flag: str, default: Union[float, int] = 0
-    ) -> Union[float, int]:
-        return self.client.variation(flag, user=self.target, default=default)
+    def number_variation(self, flag: str, default: float | int = 0) -> float | int:
+        return self.client.variation(flag, self.target, default)
 
-    def json_variation(
-        self, flag: str, default: Optional[Union[dict, list]] = None
-    ) -> Union[dict, list]:
+    def json_variation(self, flag: str, default: JSONValue | None = None) -> JSONValue:
         return self.client.variation(
-            flag, user=self.target, default={} if default is None else default
+            flag, self.target, {} if default is None else default
         )

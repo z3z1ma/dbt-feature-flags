@@ -1,0 +1,189 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 50,
+        "endLoc": {
+          "column": 3,
+          "line": 50,
+          "position": 1174
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 36,
+        "startLoc": {
+          "column": 53,
+          "line": 36,
+          "position": 892
+        }
+      },
+      "format": "python",
+      "fragment": "        {%- if feature_flag(\"Test_Flag\", default=True) -%}\n            select 100 as valid\n        {%- else -%}\n            select -100 as invalid\n        {%- endif -%}\n    {%- endset -%}\n    {{- test_case | trim -}}\n    \"\"\",\n            generate_base_context({}),  # type: ignore\n        )\n        == \"select 100 as valid\"\n    )\n\n\ndef test_ff_eval_nested() -> None:",
+      "lines": 15,
+      "secondFile": {
+        "end": 72,
+        "endLoc": {
+          "column": 3,
+          "line": 72,
+          "position": 1758
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 58,
+        "startLoc": {
+          "column": 90,
+          "line": 58,
+          "position": 1476
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 66,
+        "endLoc": {
+          "column": 38,
+          "line": 66,
+          "position": 1687
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 58,
+        "startLoc": {
+          "column": 75,
+          "line": 58,
+          "position": 1461
+        }
+      },
+      "format": "python",
+      "fragment": "        {%- if feature_flag(\"Test_Flag\", default=feature_flag(\"Nested_Flag\", default=True)) -%}\n            select 100 as valid\n        {%- else -%}\n            select -100 as invalid\n        {%- endif -%}\n    {%- endset -%}\n    {{- test_case | trim -}}\n    \"\"\",\n            generate_base_context({}),  # type: ignore",
+      "lines": 9,
+      "secondFile": {
+        "end": 88,
+        "endLoc": {
+          "column": 38,
+          "line": 88,
+          "position": 2260
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 80,
+        "startLoc": {
+          "column": 62,
+          "line": 80,
+          "position": 2034
+        }
+      },
+      "tokens": 56
+    },
+    {
+      "firstFile": {
+        "end": 81,
+        "endLoc": {
+          "column": 25,
+          "line": 81,
+          "position": 2080
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 72,
+        "startLoc": {
+          "column": 25,
+          "line": 72,
+          "position": 1780
+        }
+      },
+      "format": "python",
+      "fragment": "def test_ff_eval_with_var() -> None:\n    from dbt.clients.jinja import get_rendered\n    from dbt.context.base import generate_base_context\n\n    assert (\n        get_rendered(\n            \"\"\"\n    {%- set test_case -%}\n        {%- if feature_flag(\"Test_Flag\", default=var(\"Dbt_Var\", default=True)) -%}\n            select 100 as valid",
+      "lines": 10,
+      "secondFile": {
+        "end": 103,
+        "endLoc": {
+          "column": 25,
+          "line": 103,
+          "position": 2654
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 94,
+        "startLoc": {
+          "column": 42,
+          "line": 94,
+          "position": 2354
+        }
+      },
+      "tokens": 61
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-07-05T07:18:10.912Z",
+    "formats": {
+      "markdown": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 136,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 241
+      },
+      "python": {
+        "clones": 3,
+        "duplicatedLines": 31,
+        "duplicatedTokens": 175,
+        "lines": 701,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 4.42225392296719,
+        "percentageTokens": 5.0215208034433285,
+        "sources": 7,
+        "tokens": 3485
+      },
+      "sql": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 126,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 227
+      },
+      "toml": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 32,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 134
+      },
+      "yaml": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 61,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 2,
+        "tokens": 294
+      }
+    },
+    "total": {
+      "clones": 3,
+      "duplicatedLines": 31,
+      "duplicatedTokens": 175,
+      "lines": 1056,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 2.9356060606060606,
+      "percentageTokens": 3.994521798676101,
+      "sources": 12,
+      "tokens": 4381
+    }
+  }
+}

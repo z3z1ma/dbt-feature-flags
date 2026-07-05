@@ -12,42 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union
+from importlib import import_module
+import typing as t
 
-from dbt_feature_flags.base import BaseFeatureFlagsClient
+from dbt_feature_flags.base import JSONValue, BaseFeatureFlagsClient
 
 
 class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
-    def __init__(self):
+    def __init__(self) -> None:
         # Lazy imports
         import logging
         import os
 
-        from featureflags.api.client import Client
-        from featureflags.api.default.get_all_segments import \
-            sync as retrieve_segments
-        from featureflags.api.default.get_feature_config import \
-            sync as retrieve_flags
-        from featureflags.client import CfClient, Target
-        from featureflags.client import log as logger
-        from featureflags.config import Config
-        from featureflags.evaluations.evaluator import Evaluator
-        from featureflags.repository import Repository
+        retrieve_segments = import_module(
+            "featureflags.api.default.get_all_segments"
+        ).sync
+        retrieve_flags = import_module(
+            "featureflags.api.default.get_feature_config"
+        ).sync
+        featureflags_client = import_module("featureflags.client")
+        CfClient: t.Any = featureflags_client.CfClient
+        Target: t.Any = featureflags_client.Target
+        logger = featureflags_client.log
+        Config: t.Any = import_module("featureflags.config").Config
+        Evaluator: t.Any = import_module("featureflags.evaluations.evaluator").Evaluator
+        Repository: t.Any = import_module("featureflags.repository").Repository
 
         # Override default logging to preserve stderr (needed for dbt-bigquery)
         logger.setLevel(logging.CRITICAL)
 
         class CfSyncClient(CfClient):
-            def __init__(self, sdk_key: str):
-                self._sdk_key: Optional[str] = sdk_key
-                self._config: Config = Config(
-                    enable_stream=False, enable_analytics=False
-                )
+            def __init__(self, sdk_key: str) -> None:
+                self._sdk_key: str | None = sdk_key
+                self._config = Config(enable_stream=False, enable_analytics=False)
 
                 # Set by authenticate
-                self._client: Optional[Client] = None
-                self._auth_token: Optional[str] = None
-                self._environment_id: Optional[str] = None
+                self._client: t.Any = None
+                self._auth_token: str | None = None
+                self._environment_id: str | None = None
                 self._cluster: str = "1"
                 self.authenticate()
 
@@ -65,7 +67,7 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
                     self._repository.set_segment(segment)
 
         # Set up target
-        self.target = Target(
+        self.target: t.Any = Target(
             identifier="dbt-" + os.getenv("DBT_TARGET", "default"),
             name=os.getenv("DBT_TARGET", "default").title(),
         )
@@ -78,7 +80,7 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
             )
 
         # Init client
-        self.client = CfSyncClient(FF_KEY)
+        self.client: t.Any = CfSyncClient(FF_KEY)
         super().__init__()
 
     def bool_variation(self, flag: str, default: bool = False) -> bool:
@@ -87,14 +89,10 @@ class HarnessFeatureFlagsClient(BaseFeatureFlagsClient):
     def string_variation(self, flag: str, default: str = "") -> str:
         return self.client.string_variation(flag, target=self.target, default=default)
 
-    def number_variation(
-        self, flag: str, default: Union[float, int] = 0
-    ) -> Union[float, int]:
+    def number_variation(self, flag: str, default: float | int = 0) -> float | int:
         return self.client.number_variation(flag, target=self.target, default=default)
 
-    def json_variation(
-        self, flag: str, default: Optional[Union[dict, list]] = None
-    ) -> Union[dict, list]:
+    def json_variation(self, flag: str, default: JSONValue | None = None) -> JSONValue:
         return self.client.json_variation(
             flag, target=self.target, default={} if default is None else default
         )

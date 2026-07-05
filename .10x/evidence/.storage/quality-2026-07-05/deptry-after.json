@@ -1,0 +1,38 @@
+[
+    {
+        "error": {
+            "code": "DEP002",
+            "message": "'harness-featureflags' defined as a dependency but not used in the codebase"
+        },
+        "module": "harness-featureflags",
+        "location": {
+            "file": "pyproject.toml",
+            "line": null,
+            "column": null
+        }
+    },
+    {
+        "error": {
+            "code": "DEP002",
+            "message": "'splitio-client' defined as a dependency but not used in the codebase"
+        },
+        "module": "splitio-client",
+        "location": {
+            "file": "pyproject.toml",
+            "line": null,
+            "column": null
+        }
+    },
+    {
+        "error": {
+            "code": "DEP002",
+            "message": "'launchdarkly-server-sdk' defined as a dependency but not used in the codebase"
+        },
+        "module": "launchdarkly-server-sdk",
+        "location": {
+            "file": "pyproject.toml",
+            "line": null,
+            "column": null
+        }
+    }
+]

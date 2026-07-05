@@ -20,7 +20,12 @@ from functools import wraps
 
 from dbt_feature_flags import base, fme, harness, launchdarkly
 
-_MOCK_CLIENT = object()
+
+class _MockClient:
+    pass
+
+
+_MOCK_CLIENT: t.Final = _MockClient()
 
 
 class SupportedProviders(str, Enum):
@@ -35,39 +40,40 @@ def _is_truthy(value: str) -> bool:
     return value.lower() in ("1", "true", "yes")
 
 
-def _get_client() -> base.BaseFeatureFlagsClient | _MOCK_CLIENT:
+def _get_client() -> base.BaseFeatureFlagsClient | _MockClient:
     """Return the user specified client.
 
     Valid implementations MUST inherit from BaseFeatureFlagsClient.
     """
-    provider, client = os.getenv("DBT_FF_PROVIDER"), None
+    provider_name = os.getenv("DBT_FF_PROVIDER")
 
     if _is_truthy(os.getenv("DBT_FF_DISABLE", "0")):
-        client = _MOCK_CLIENT
-    elif not provider:
-        client = _MOCK_CLIENT
-    elif provider == SupportedProviders.Harness:
-        client = harness.HarnessFeatureFlagsClient()
-    elif provider == SupportedProviders.FME:
-        client = fme.HarnessFMEClient()
-    elif provider == SupportedProviders.LaunchDarkly:
-        client = launchdarkly.LaunchDarklyFeatureFlagsClient()
+        return _MOCK_CLIENT
 
-    if client is not _MOCK_CLIENT and not isinstance(
-        client, base.BaseFeatureFlagsClient
-    ):
+    if not provider_name:
+        return _MOCK_CLIENT
+
+    try:
+        provider = SupportedProviders(provider_name)
+    except ValueError as exc:
         raise RuntimeError(
-            "Invalid dbt feature flag client specified by (DBT_FF_PROVIDER=%s)",
-            provider,
-        )
+            f"Unsupported dbt feature flag provider: DBT_FF_PROVIDER={provider_name}"
+        ) from exc
 
-    return client
+    if provider == SupportedProviders.Harness:
+        return harness.HarnessFeatureFlagsClient()
+    if provider == SupportedProviders.FME:
+        return fme.HarnessFMEClient()
+    if provider == SupportedProviders.LaunchDarkly:
+        return launchdarkly.LaunchDarklyFeatureFlagsClient()
+
+    return _MOCK_CLIENT
 
 
 def get_rendered(
-    fn: t.Callable,
-    client: base.BaseFeatureFlagsClient,
-):
+    fn: t.Callable[..., t.Any],
+    client: base.BaseFeatureFlagsClient | _MockClient,
+) -> t.Callable[..., t.Any]:
     """Patch dbt's jinja environment to include feature flag functions."""
 
     if getattr(fn, "status", None) == "patched":
@@ -76,24 +82,27 @@ def get_rendered(
     @wraps(fn)
     def _wrapped(
         string: str,
-        ctx: t.Dict[str, t.Any],
-        node=None,
+        ctx: dict[str, t.Any],
+        node: t.Any = None,
         capture_macros: bool = False,
         native: bool = False,
-    ):
+    ) -> t.Any:
         if client is _MOCK_CLIENT:
             ctx["feature_flag"] = ctx.get("var", lambda _, default=False: default)
             ctx["feature_flag_str"] = ctx.get("var", lambda _, default="": default)
             ctx["feature_flag_num"] = ctx.get("var", lambda _, default=0: default)
-            ctx["feature_flag_json"] = ctx.get("var", lambda _, default={}: default)
+            ctx["feature_flag_json"] = ctx.get(
+                "var", lambda _, default=None: {} if default is None else default
+            )
         else:
-            ctx["feature_flag"] = client.bool_variation
-            ctx["feature_flag_str"] = client.string_variation
-            ctx["feature_flag_num"] = client.number_variation
-            ctx["feature_flag_json"] = client.json_variation
+            feature_client = t.cast(base.BaseFeatureFlagsClient, client)
+            ctx["feature_flag"] = feature_client.bool_variation
+            ctx["feature_flag_str"] = feature_client.string_variation
+            ctx["feature_flag_num"] = feature_client.number_variation
+            ctx["feature_flag_json"] = feature_client.json_variation
         return fn(string, ctx, node, capture_macros, native)
 
-    _wrapped.status = "patched"
+    setattr(_wrapped, "status", "patched")
     return _wrapped
 
 
@@ -101,8 +110,9 @@ def patch_dbt_environment() -> None:
     """Patch dbt's jinja environment to include feature flag functions."""
     from dbt.clients import jinja
 
-    jinja._get_rendered = jinja.get_rendered
-    jinja.get_rendered = get_rendered(jinja._get_rendered, _get_client())
+    original_get_rendered = getattr(jinja, "_get_rendered", jinja.get_rendered)
+    setattr(jinja, "_get_rendered", original_get_rendered)
+    setattr(jinja, "get_rendered", get_rendered(original_get_rendered, _get_client()))
 
 
 if __name__ == "__main__":

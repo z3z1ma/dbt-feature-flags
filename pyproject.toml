@@ -4,8 +4,8 @@ version = "0.5.2"
 description = "Use feature flags in dbt models"
 authors = [{ name = "z3z1ma", email = "butler.alex2010@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.8"
-dependencies = ["dbt-core>=1.0.0,<2"]
+requires-python = ">=3.10"
+dependencies = ["dbt-core>=1.10.20,<2"]
 
 [project.urls]
 Homepage = "https://github.com/z3z1ma/dbt-feature-flags"
@@ -21,7 +21,7 @@ launchdarkly = ["launchdarkly-server-sdk>=7,<9"]
 dbt-ff-preflight = "dbt_feature_flags.preflight:cli"
 
 [dependency-groups]
-dev = ["pytest>=5.2"]
+dev = ["pytest>=9.0.3"]
 
 [build-system]
 requires = ["hatchling>=1.27"]
@@ -30,3 +30,8 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["dbt_feature_flags"]
 force-include = { "zzz_dbt_feature_flags.pth" = "zzz_dbt_feature_flags.pth" }
+
+[tool.deptry.per_rule_ignores]
+# Optional provider SDKs are imported lazily by provider modules only when their
+# matching extras are installed.
+DEP002 = ["harness-featureflags", "splitio-client", "launchdarkly-server-sdk"]

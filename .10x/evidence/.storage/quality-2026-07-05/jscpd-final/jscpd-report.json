@@ -1,0 +1,225 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 49,
+          "line": 49,
+          "position": 1180
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 35,
+        "startLoc": {
+          "column": 53,
+          "line": 35,
+          "position": 844
+        }
+      },
+      "format": "python",
+      "fragment": "        {%- if feature_flag(\"Test_Flag\", default=True) -%}\n            select 100 as valid\n        {%- else -%}\n            select -100 as invalid\n        {%- endif -%}\n    {%- endset -%}\n    {{- test_case | trim -}}\n    \"\"\",\n            {},\n            \"select 100 as valid\",\n        ),\n        (\n            \"\"\"\n    {%- set test_case -%}\n        {%- if feature_flag(\"Test_Flag\", default=feature_flag(\"Nested_Flag\", default=True)) -%}",
+      "lines": 15,
+      "secondFile": {
+        "end": 63,
+        "endLoc": {
+          "column": 49,
+          "line": 63,
+          "position": 1557
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 49,
+        "startLoc": {
+          "column": 90,
+          "line": 49,
+          "position": 1221
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 64,
+        "endLoc": {
+          "column": 25,
+          "line": 64,
+          "position": 1616
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 49,
+        "startLoc": {
+          "column": 75,
+          "line": 49,
+          "position": 1206
+        }
+      },
+      "format": "python",
+      "fragment": "        {%- if feature_flag(\"Test_Flag\", default=feature_flag(\"Nested_Flag\", default=True)) -%}\n            select 100 as valid\n        {%- else -%}\n            select -100 as invalid\n        {%- endif -%}\n    {%- endset -%}\n    {{- test_case | trim -}}\n    \"\"\",\n            {},\n            \"select 100 as valid\",\n        ),\n        (\n            \"\"\"\n    {%- set test_case -%}\n        {%- if feature_flag(\"Test_Flag\", default=var(\"Dbt_Var\", default=True)) -%}\n            select 100 as valid",
+      "lines": 16,
+      "secondFile": {
+        "end": 78,
+        "endLoc": {
+          "column": 25,
+          "line": 78,
+          "position": 1980
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 63,
+        "startLoc": {
+          "column": 62,
+          "line": 63,
+          "position": 1570
+        }
+      },
+      "tokens": 93
+    },
+    {
+      "firstFile": {
+        "end": 164,
+        "endLoc": {
+          "column": 49,
+          "line": 164,
+          "position": 4696
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 157,
+        "startLoc": {
+          "column": 4,
+          "line": 157,
+          "position": 4362
+        }
+      },
+      "format": "python",
+      "fragment": "    def string_variation(self, flag: str, default: str = \"\") -> str:\n        return default\n\n    def number_variation(self, flag: str, default: float | int = 0) -> float | int:\n        return default\n\n    def json_variation(self, flag: str, default: JSONValue | None = None) -> JSONValue:\n        return {} if default is None else default",
+      "lines": 8,
+      "secondFile": {
+        "end": 209,
+        "endLoc": {
+          "column": 49,
+          "line": 209,
+          "position": 6144
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 202,
+        "startLoc": {
+          "column": 4,
+          "line": 202,
+          "position": 5810
+        }
+      },
+      "tokens": 76
+    },
+    {
+      "firstFile": {
+        "end": 237,
+        "endLoc": {
+          "column": 45,
+          "line": 237,
+          "position": 6985
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 228,
+        "startLoc": {
+          "column": 62,
+          "line": 228,
+          "position": 6645
+        }
+      },
+      "format": "python",
+      "fragment": "def test_preflight_invalidates_partial_parse_when_flags_change(\n    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path\n) -> None:\n    from dbt_feature_flags import patch, preflight\n\n    target_dir = tmp_path / \"target\"\n    target_dir.mkdir()\n    cache_file = target_dir / \".fme_flag_state.json\"\n    partial_parse = target_dir / \"partial_parse.msgpack\"\n    cache_file.write_text(json.dumps({\"flag\": False}))",
+      "lines": 10,
+      "secondFile": {
+        "end": 258,
+        "endLoc": {
+          "column": 45,
+          "line": 258,
+          "position": 7729
+        },
+        "name": "tests/test_dbt_feature_flags.py",
+        "start": 249,
+        "startLoc": {
+          "column": 55,
+          "line": 249,
+          "position": 7389
+        }
+      },
+      "tokens": 54
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-07-05T07:27:25.949Z",
+    "formats": {
+      "markdown": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 139,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 241
+      },
+      "python": {
+        "clones": 4,
+        "duplicatedLines": 45,
+        "duplicatedTokens": 296,
+        "lines": 1007,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 4.468718967229394,
+        "percentageTokens": 5.506976744186046,
+        "sources": 7,
+        "tokens": 5375
+      },
+      "sql": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 129,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 227
+      },
+      "toml": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 37,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 1,
+        "tokens": 152
+      },
+      "yaml": {
+        "clones": 0,
+        "duplicatedLines": 0,
+        "duplicatedTokens": 0,
+        "lines": 62,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 0.0,
+        "percentageTokens": 0.0,
+        "sources": 2,
+        "tokens": 272
+      }
+    },
+    "total": {
+      "clones": 4,
+      "duplicatedLines": 45,
+      "duplicatedTokens": 296,
+      "lines": 1374,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 3.2751091703056767,
+      "percentageTokens": 4.723153023775331,
+      "sources": 12,
+      "tokens": 6267
+    }
+  }
+}

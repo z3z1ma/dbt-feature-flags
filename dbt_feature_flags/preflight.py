@@ -29,13 +29,15 @@ Usage (Python):
     from dbt_feature_flags.preflight import run
     run(flags=["enable_new_mart"], target_dir="target")
 """
+
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import pathlib
-import sys
+import typing as t
+
+from dbt_feature_flags.base import BaseFeatureFlagsClient
 
 
 def run(flags: list[str], target_dir: str = "target") -> None:
@@ -51,8 +53,8 @@ def run(flags: list[str], target_dir: str = "target") -> None:
     """
     from dbt_feature_flags.patch import _get_client, _MOCK_CLIENT
 
-    target       = pathlib.Path(target_dir)
-    cache_file   = target / ".fme_flag_state.json"
+    target = pathlib.Path(target_dir)
+    cache_file = target / ".fme_flag_state.json"
     partial_parse = target / "partial_parse.msgpack"
 
     client = _get_client()
@@ -61,14 +63,13 @@ def run(flags: list[str], target_dir: str = "target") -> None:
         print("[dbt-ff] Running in mock mode — skipping preflight flag check.")
         return
 
-    # Resolve current flag states
-    key     = "dbt-" + os.getenv("DBT_TARGET", "default")
-    current = {flag: client.bool_variation(flag) for flag in flags}
-    client.shutdown()
+    feature_client = t.cast(BaseFeatureFlagsClient, client)
+    current = {flag: feature_client.bool_variation(flag, False) for flag in flags}
+    feature_client.shutdown()
 
     # Compare to previous run
     previous = json.loads(cache_file.read_text()) if cache_file.exists() else {}
-    changed  = {
+    changed = {
         f: (previous.get(f, None), v)
         for f, v in current.items()
         if v != previous.get(f)

@@ -1,4 +1,4 @@
-Status: active
+Status: done
 Created: 2026-07-05
 Updated: 2026-07-05
 
@@ -33,6 +33,10 @@ Migrate the repository from Poetry metadata and lock management to PEP 621 proje
 - `pyproject.toml`
 - `README.md`
 - `tests/test_dbt_feature_flags.py`
+- `.10x/evidence/2026-07-05-uv-migration.md`
+- `.10x/evidence/2026-07-05-quality-optimization.md`
+- `.10x/reviews/2026-07-05-quality-optimization-review.md`
+- `.10x/knowledge/optional-provider-sdk-dependencies.md`
 
 ## Evidence Expectations
 
@@ -49,3 +53,5 @@ None.
 
 - 2026-07-05: Started from a clean `main` worktree and created branch `codex/uv-quality-optimizer`.
 - 2026-07-05: Converted Poetry metadata to PEP 621 metadata, removed `poetry.lock`, generated `uv.lock`, built distributions with `uv build`, and passed `uv run --frozen pytest -q`.
+- 2026-07-05: Ran the supplied production Python quality optimizer procedure. Fixed lint/type/security/dependency findings, expanded tests from 5 to 23 cases, raised the support floor to Python 3.10+ and dbt-core 1.10.20+ for clean audit results, and recorded metric deltas in `.10x/evidence/2026-07-05-quality-optimization.md`.
+- 2026-07-05: Closure review passed with explicit residual limits for live provider integration testing and the intentional compatibility-floor change.

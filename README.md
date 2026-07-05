@@ -3,7 +3,7 @@
 ![PyPI](https://img.shields.io/pypi/v/dbt-feature-flags)
 ![Downloads](https://pepy.tech/badge/dbt-feature-flags)
 ![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-green.svg)
-![black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![ruff](https://img.shields.io/badge/code%20style-ruff-46a7f5.svg)
 ![example workflow](https://github.com/z3z1ma/dbt-feature-flags/actions/workflows/run-tests.yml/badge.svg)
 
 ## Why Feature Flags?
@@ -26,11 +26,14 @@ Alternatively we also support [LaunchDarkly](https://launchdarkly.com/) and the 
 
 ### Set Up
 
+Requires Python 3.10+ and dbt-core 1.10.20+.
+
 Supported clients
 
 | clients      | supported |
 |--------------|-----------|
 | harness      | ✅         |
+| fme          | ✅         |
 | launchdarkly | ✅         |
 | unleashed    | ⛔️         |
 
